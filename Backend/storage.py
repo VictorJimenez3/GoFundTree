@@ -8,8 +8,6 @@ blobPaths and names are defined as
 can be queried knowing PID by searching noSQL firestore for PID and finding os_string (gives hint on file type)
 """
 
-
-
 def uploadFile(bucket, filePath, PID):
     """
     Assumes file to upload is locally stored at the position defined in filePath
