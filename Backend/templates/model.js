@@ -1,12 +1,6 @@
 // Select the model-viewer element from the HTML
 const modelViewer = document.getElementById('modelViewer');
 
-// Detect platform (iOS or Android)
-function detectOS() {
-  const userAgent = navigator.userAgent.toLowerCase();
-  return /iphone|ipad|ipod/.test(userAgent) ? 'ios' : 'android';
-}
-
 // Fetch the PID from the backend and load the appropriate model
 async function fetchAndLoadModel() {
   try {
@@ -37,4 +31,4 @@ async function fetchAndLoadModel() {
 }
 
 // Call the function to fetch and load the model when the page loads
-fetchAndLoadModel();
+await fetchAndLoadModel();
