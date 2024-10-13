@@ -75,6 +75,6 @@ def getFile(bucket, db, PID, _type):
         document = db.collection("Project").document(PID).get()
 
     extension = "usdz" if OS and OS.lower() == "ios" else "png"
-    print("")
+
     #returns a public link that gives access to file for nonlocalized storage client-side
     return {"url" : getDownloadUrl(bucket=bucket, PID=PID, _type=extension), "OS" : OS}

@@ -69,7 +69,7 @@ def visualizePage(PID):
 def projectPage(PID):
     projectData = db.collection("Project").document(PID).get().to_dict()
     #PASS PID
-    return f"projectPage for project {PID}"
+    return render_template("project.html", PID=PID, projectData=projectData)
 
 @app.route("/paymentPage/<PID>")
 def paymentPage(PID):
@@ -143,6 +143,11 @@ def finalizeProject(PID, lat, long):
         "location" : f"{lat},{long}"
     })
 
+    return jsonify({
+        "PID" : PID,
+    }), 200
+
+
 @app.route("/api/get3D/<PID>/", methods=["GET"]) #DONE
 def get3D(PID):
     #has proper extension for reference
@@ -155,7 +160,19 @@ def get3D(PID):
 
     return jsonify(deliverable)
 
-@app.route("/api/getSurroundingProjects/<lat>/<long>/<int:num>", methods=["POST"])
+@app.route("/api/getInfo/<PID>", methods=["GET"])
+def getInfo(PID):
+    return jsonify(db.collection("Project").document(PID).get().to_dict())
+
+@app.route("/api/getAreaName/<PID>", methods=["GET"])
+def grabAreaName(PID):
+    doc = db.collection("Project").document(PID).get()
+    
+    location = doc.get("location")
+    lat, long = location.split(",")
+
+
+@app.route("/api/getSurroundingProjects/<lat>/<long>/<int:num>", methods=["GET"])
 def getSurroundingProjects(lat, long, num: int):
     #projects defined at {distance(int) : [projectDoc]}
     projects = {}
@@ -186,9 +203,13 @@ def getSurroundingProjects(lat, long, num: int):
         return float(distance)
 
     for project in db.collection("Project").stream():
-        lat2, long2 = project.get("location").split(",")
-        distance = getCircumferentialDistance(lat, long, lat2, long2)
+        if project.id == "modelID": #dummy val
+            continue
         
+        lat2, long2 = project.get('location').split(",")
+
+        distance = getCircumferentialDistance(lat, long, lat2, long2)
+
         if distance not in projects: #doesn't exist
             projects[distance] = [project]
         else:
@@ -201,14 +222,12 @@ def getSurroundingProjects(lat, long, num: int):
     for _ in range(min(num, len(projects))):  
         curSmallest = heappop(heap)
 
-        #clean entry from projects to not double dip
         smallestLst.append(projects[curSmallest].pop().to_dict())
         
         #del projects[curSmallest] == []; rasies key-errors for testing algo accuracy
         if len(projects[curSmallest]) == 0: 
             del projects[curSmallest]
-
+    
     return jsonify(smallestLst)
-
 if __name__ == "__main__":
     app.run()

@@ -15,13 +15,77 @@
       width: 100%;
       height: 100%;
     }
+    
+    #location-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.75);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050; /* Higher than other elements */
+        color: white;
+        text-align: center;
+    }
+
+    /* Button styling inside the overlay */
+    #getLocationBtn {
+        font-size: 1.5rem;
+        padding: 15px 30px;
+        margin-top: 20px;
+    }
     </style>
+
+<!-- Full-screen Overlay with Location Button and Status Message -->
+<div id="location-overlay">
+    <button class="btn btn-success" id="getLocationBtn">
+        <i class="bi bi-geo-alt"></i> Allow Location Access
+    </button>
+    <div id="status"></div> <!-- Status message div -->
+</div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const locationOverlay = document.getElementById('location-overlay');
+        const statusDiv = document.getElementById('status'); // Status message div
+
+        getLocationBtn.addEventListener('click', async () => {
+            try {
+                // Show status message while fetching location
+                statusDiv.textContent = 'Fetching location... Please wait.';
+
+                // Get the user's current location
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,  // Timeout after 10 seconds
+                        maximumAge: 0     // No cached results
+                    });
+                });
+
+                const { latitude, longitude } = position.coords;
+
+                // Hide the overlay on success
+                locationOverlay.style.display = 'none';
+            } catch (error) {
+                statusDiv.textContent = 'Failed to retrieve location. Please enable location services.';
+                console.error('Location Error:', error);
+            }
+        });
+    });
+    </script>
+
 
     <!-- Top Row with Back Button -->
     <div class="container-fluid p-2 bg-light border-bottom">
         <div class="d-flex justify-content-start align-items-center">
             <!-- Back Button -->
-            <button class="btn btn-outline-secondary" onclick="window.location.href='models.html'">
+            <button class="btn btn-outline-secondary" onclick="window.location.href='http:\/\/127.0.0.1:5000/get3D/{{PID}}'">
                 <i class="bi bi-arrow-left"></i> Back
             </button>
         </div>
@@ -75,6 +139,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        var baseURL = "http://127.0.0.1:5000"
         var pngDataURL = ""
 
         document.getElementById("postBtn").addEventListener('click', async (event) => {
@@ -89,9 +154,31 @@
                     "B64" : pngDataURL
                 })
             });
+
+            if(response.ok) {
+                window.location.href = `${baseURL}/projectPage/{{PID}}`;
+            }
+
         } else {
             console.log("No image to upload.");
         }
+        
+        navigator.geolocation.getCurrentPosition(function(position) {
+            // Grab latitude and longitude
+            const lat = position.coords.latitude;
+            const long = position.coords.longitude;
+
+            // You can now use these variables
+            console.log("Latitude: " + lat);
+            console.log("Longitude: " + long);
+        
+            const response = fetch(`http://127.0.0.1:5000/api/finalizeProject/{{PID}}/${lat}/${long}`);
+
+         
+        }, function(error) {
+            console.error("Error Code = " + error.code + " - " + error.message);
+         });
+        
     } catch (error) {
         alert(`Error: ${error}`);
     }

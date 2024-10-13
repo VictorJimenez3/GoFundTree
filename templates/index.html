@@ -9,6 +9,115 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='styles/main.css') }}">
 </head>
 <body>
+    <style>
+    #location-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.75);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1050; /* Higher than other elements */
+        color: white;
+        text-align: center;
+    }
+/* Button styling inside the overlay */
+    #getLocationBtn {
+        font-size: 1.5rem;
+        padding: 15px 30px;
+        margin-top: 20px;
+    }
+    </style>
+
+<!-- Full-screen Overlay with Location Button and Status Message -->
+<div id="location-overlay">
+    <button class="btn btn-success" id="getLocationBtn">
+        <i class="bi bi-geo-alt"></i> Allow Location Access
+    </button>
+    <div id="status"></div> <!-- Status message div -->
+</div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const locationOverlay = document.getElementById('location-overlay');
+        const statusDiv = document.getElementById('status'); // Status message div
+
+        getLocationBtn.addEventListener('click', async () => {
+            try {
+                // Show status message while fetching location
+                statusDiv.textContent = 'Fetching location... Please wait.';
+
+                // Get the user's current location
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,  // Timeout after 10 seconds
+                        maximumAge: 0     // No cached results
+                    });
+                });
+
+                const { latitude, longitude } = position.coords;
+
+                // Hide the overlay on success
+                locationOverlay.style.display = 'none';
+            } catch (error) {
+                statusDiv.textContent = 'Failed to retrieve location. Please enable location services.';
+                console.error('Location Error:', error);
+            }
+        });
+    });
+    </script>
+
+    <script>
+        var projects;
+
+        navigator.geolocation.getCurrentPosition(function(position) {
+
+        // Grab latitude and longitude
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        // You can now use these variables
+        console.log("Latitude: " + latitude);
+        console.log("Longitude: " + longitude);
+
+        var response = fetch(`http://127.0.0.1:5000/api/getSurroundingProjects/${latitude}/${longitude}/4`).then( res => res.json())
+        .then(projects => {
+
+            console.log(`testing projects for http://127.0.0.1:5000/api/getSurroundingProjects/${latitude}/${longitude}/4`);
+            console.log(projects[0]);
+    
+            console.log(projects)
+        
+        }
+
+        );
+
+    }, function(error) {
+        console.error("Error Code = " + error.code + " - " + error.message);
+    });
+    
+    var curProj;
+    response = "";
+    var lat, long;
+    // for(var i = 1; i <= 4; i++ ) {
+    //     curProj = projects[i];
+    //     lat, long = curProj.location.split(",")
+    //     try{
+    //         response = fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${apikey}`)
+    //     } catch (e) {
+    //         //nothing hahahahaa
+    //     }
+    //     document.getElementById(`title${i}`) = curProj.name;
+    //     document.getElementById(`description${i}`) = curProj.description;
+    //     document.getElementById(`location${i}`) = response.cityCountry;
+    // }
+    </script>
 
     <!-- Top Row with Back and Create Project Buttons -->
     <div class="container-fluid p-2 bg-light border-bottom">
@@ -25,6 +134,7 @@
         </div>
     </div>
 
+
     <!-- Dynamic Rows for Projects -->
     <div class="container mt-3">
         <div id="project-list">
@@ -33,9 +143,9 @@
             <div class="col-12 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Tree Planting - Central Park</h5>
-                        <p class="card-text">Description: Urban greening initiative in NYC's Central Park.</p>
-                        <p class="card-text"><strong>Location:</strong> New York City, USA</p>
+                        <h5 class="card-title" id="title1">Tree Planting - Central Park</h5>
+                        <p class="card-text" id="description1">Description: Urban greening initiative in NYC's Central Park.</p>
+                        <p class="card-text" id="location1"><strong>Location:</strong> New York City, USA</p>
                         <button class="btn-outline-secondary" onclick="window.location.href='project.html'">See More</button>
 
                     </div>
@@ -44,9 +154,9 @@
             <div class="col-12 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Green Revival - Downtown LA</h5>
-                        <p class="card-text">Description: Adding more trees to Los Angeles downtown areas.</p>
-                        <p class="card-text"><strong>Location:</strong> Los Angeles, USA</p>
+                        <h5 class="card-title" id="title2">Green Revival - Downtown LA</h5>
+                        <p class="card-text" id="description2">Description: Adding more trees to Los Angeles downtown areas.</p>
+                        <p class="card-text" id="location2"><strong>Location:</strong> Los Angeles, USA</p>
                         <button class="btn-outline-secondary" onclick="window.location.href='project.html'">See More</button>
 
                     </div>
@@ -55,9 +165,9 @@
             <div class="col-12 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Eco Boost - London Streets</h5>
-                        <p class="card-text">Description: Increasing tree coverage in London’s urban landscape.</p>
-                        <p class="card-text"><strong>Location:</strong> London, UK</p>
+                        <h5 class="card-title" id="title3">Eco Boost - London Streets</h5>
+                        <p class="card-text" id="description3">Description: Increasing tree coverage in London’s urban landscape.</p>
+                        <p class="card-text" id="location3"><strong>Location:</strong> London, UK</p>
                         <button class="btn-outline-secondary" onclick="window.location.href='project.html'">See More</button>
                     </div>
                 </div>
@@ -65,10 +175,9 @@
             <div class="col-12 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Leafy Streets - Berlin</h5>
-                        <p class="card-text">Description: Adding green spaces to Berlin's streets for cleaner air.</p>
-                        <p class="card-text"><strong>Location:</strong> Berlin, Germany</p>
-                        btn-outline-secondary
+                        <h5 class="card-title" id="title4"">Leafy Streets - Berlin</h5>
+                        <p class="card-text" id="description4">Description: Adding green spaces to Berlin's streets for cleaner air.</p>
+                        <p class="card-text" id="location4"><strong>Location:</strong> Berlin, Germany</p>
                         <button class="btn-outline-secondary" onclick="window.location.href='project.html'">See More</button>
                     </div>
                 </div>
@@ -77,6 +186,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="scripts.js"></script>
 </body>
 </html>
