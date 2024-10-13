@@ -1,13 +1,13 @@
 #packages
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS, cross_origin
 
 import firebase_admin
 from firebase_admin import credentials, storage, firestore
 
 #built-ins
-import os, math
+import os, math, requests, base64
 from heapq import heapify, heappush, heappop 
 from pprint import pprint
 
@@ -22,11 +22,21 @@ CORS(app)
 
 cred = credentials.Certificate("gofundtree-firebase-adminsdk-w1ib7-e1110dff25.json") #TODO get rid before deploy
 firebase_admin.initialize_app(cred, {
-    'storageBucket': 'gs://gofundtree.appspot.com' # might need to change to "gofundtree.appspot.com"
+    'storageBucket': 'gofundtree.appspot.com' # might need to change to "gofundtree.appspot.com"
 })
 
 bucket = storage.bucket()
 db = firestore.client()
+
+#functions
+
+def create_file_from_base64(base64_string, PID):
+    decoded_bytes = base64.b64decode(base64_string)
+    fname = f"{PID}.png"
+    with open(fname, "wb") as output_file:
+        output_file.write(decoded_bytes)
+
+    return fname
 
 #routes
 
@@ -36,17 +46,18 @@ def homepage():
 
 @app.route("/nearbyProjects")
 def nearbyProjectsPage(): #add frontend calls to retrieve 5 nearest projects to API
-    return "nearby"
+    #EXPECT A LOCATION TO BE PASSED AS A FRONTEND CALL THROUGH /api/getSurroundingProjects
+    return render_template("index.html")
 
 @app.route("/select3D")
 def select3DPage():
-    #PASS RANDOM PID
-    return "select3D"
+    #PID GETS GENERATED, SENDS ITSELF TO DIFFERENT ROUTES
+    return render_template("models.html")
 
 @app.route("/visualize/<PID>")
 def visualizePage(PID):
     #PASS PID
-    return f"vizualize project {PID}"
+    return render_template("camera.html", PID=PID)
 
 @app.route("/projectPage/<PID>")
 def projectPage(PID):
@@ -66,47 +77,42 @@ def paymentPage(PID):
 @app.route("/api/uploadFile/<PID>", methods=["POST"])
 def uploadFileToFirebase(PID):
     """
-    Only used for uploading image to Firebase Storage
+    Uploads a file (SPECIFICALLY PNG) from a URL to Firebase Storage
     """
-    #MUST ASSUME FILE TYPE IS EITHER
-    #.gbl, .usdz, .png
-    #OTHERWISE WILL NOT WORK!!
-    
-    if 'file' not in request.files:
-        return "No file part", 400
+
+    # Check if a file URL is provided
+    b64 = request.json.get('url')
+    if not b64:
+        return jsonify({"message" : "No data provided"}), 400
 
     if not PID:
-        return f"Bad PID {PID}", 400
+        return jsonify({"message" : f"Bad PID {PID}"}), 400
 
-    file = request.files['file']
-    
-    if file.filename == '':
-        return "No selected file", 400
 
-    # Get the file extension
-    file_ext = file.filename.split('.')[-1].lower()
+    # Download the file from the given URL
+    try:
+        fn = create_file_from_base64(b64, PID)
+        #fn is deleted in uploadFile
+        uploadFile(bucket=bucket, filePath=fn, PID=PID)  
 
-    # Check if the file extension is valid (.glb, .usdz, .png)
-    if file_ext in ['glb', 'usdz', 'png']:
-        # Save the file in the current working directory
-        pathnm = f'./{file.filename}'  # Save in the current directory
-        file.save(pathnm)  # Save the file directly
+    except Exception as e:
+        return jsonify({"message" : f"Failed to upload the file to Firebase: {e}"}), 500
 
-        #uploads to Firebase Storage Bucket and deletes file
-        uploadFile(bucket=bucket, filePath=pathnm, PID=PID)
+    # Optionally, delete the local copy of the file after uploading to Firebase
+    try:
+        os.remove(fn)
+    except Exception as e:
+        pass #was likely removed in #uploadFIle
 
-        return jsonify({
-            'message': f"File {file.filename} for {PID} uploaded successfully!"
-        })
-    else:
-        return "Invalid file type. Only .glb, .usdz, or .png are allowed.", 400    
+    return jsonify({'message': f"File from {b64} for {PID} uploaded successfully!"})
+
 
 @app.route("/api/retrieveFile/<PID>/<_type>", methods=["GET"])
 def retrieveFile(PID, _type):
     return jsonify(getFile(bucket=bucket, db=db, PID=PID, _type=_type))
 
 @app.route("/api/initProject", methods=["POST"])
-def initProject():
+def initProject(PID):
     json = request.json
 
     #init to Firebase Firestore
@@ -118,16 +124,13 @@ def initProject():
         "greens": objectList,
         "location" : "0.00000 0.00000", #instatiate for future editing @PG3
     }
-
-    pprint(finJSON)
-
     PID = db.collection("Project").add(finJSON)
 
     #Ricardo push 3D Model to Firebase Storage
     #TODO add implementation
 
     return jsonify({
-        "PID" : PID[1].id,
+        "PID" : PID,
     }), 200
 
 #should be a post, but it realistically easier to parse this way
@@ -146,9 +149,12 @@ def get3D(PID):
     #has proper extension for reference
     blenderFileURL = getFile(bucket=bucket, db=db, PID=PID, _type="model")
 
-    return jsonify({
+    deliverable = {
         "PID" : PID,
-    }.update(blenderFileURL))
+    }
+    deliverable.update(blenderFileURL)
+
+    return jsonify(deliverable)
 
 @app.route("/api/getSurroundingProjects/<lat>/<long>/<int:num>", methods=["POST"])
 def getSurroundingProjects(lat, long, num: int):

@@ -51,15 +51,19 @@ def getDownloadUrl(bucket, PID, _type):
     # _type = extension
 
     # blobName: the file path in Firebase Storage
+    
     blobName = f"{'images' if _type in ['png', 'jpeg'] else 'models'}/{PID}.{_type}"
-
+    
     # Get a reference to the blob in the storage bucket
     blob = bucket.blob(blobName)
 
+    # Check if the blob exists before making it public
+    if not blob.exists():
+        string = f"The file at {blobName} does not exist in Firebase Storage."
+        raise FileNotFoundError(string)
+
     # Double check that the blob is public
     blob.make_public()
-
-    print(f"Public URL for the file: {blob.public_url}")
 
     # Return the public URL for the file to avoid local download for sending frondend
     return blob.public_url
@@ -74,4 +78,4 @@ def getFile(bucket, db, PID, _type):
     extension = "usdz" if OS == "IOS" else "glb" if OS == "Android" else "png"
 
     #returns a public link that gives access to file for nonlocalized storage client-side
-    return {"url" : getDownloadUrl(bucket=bucket, PID=PID, _type=extension)}
+    return {"url" : getDownloadUrl(bucket=bucket, PID=PID, _type=extension), "OS" : OS.lower()}
