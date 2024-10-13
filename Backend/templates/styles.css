@@ -226,13 +226,22 @@ footer {
     text-align: center;
     font-size: 1rem;
 }
+.rounded-image {
+    border-radius: 15px;
+    border: 2px solid transparent;
+  }
 
+  .image-button {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
 
+  .image-button img {
+    transition: border-color 0.3s ease-in-out;
+  }
 
-
-
-
-
-
-
-
+  .image-button.active img {
+    border-color: #007bff; /* Highlight color */
+  }

@@ -8,12 +8,11 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!--let baseURL="http://127.0.0.1:5000"-->
     <!-- Top Row with Back Button -->
     <div class="container-fluid p-2 bg-light border-bottom">
         <div class="d-flex justify-content-start align-items-center">
             <!-- Back Button -->
-            <button class="btn back-button" onclick=""> <!--TODO integrate walk back-->
+            <button class="btn back-button">
                 <i class="bi bi-arrow-left"></i> Back
             </button>
         </div>
@@ -34,25 +33,27 @@
                 <textarea class="form-control" id="description" rows="3" placeholder="Enter description" required></textarea>
             </div>
 
-            <!-- Tree Selection -->
-            <div class="mb-3">
-                <label for="trees" class="form-label">Number of Trees</label>
-                <div class="input-group">
-                    <button type="button" class="btn btn-outline-secondary" id="minusTree">-</button>
-                    <input type="number" class="form-control text-center" id="treeCount" value="0" min="0" max="10" readonly aria-label="Number of bushes selected">
-                    <button type="button" class="btn btn-outline-secondary" id="plusTree">+</button>
-                </div>
-            </div>
-
-            
-          
-            <!-- Bush Selection -->
-            <div class="mb-3">
-                <label for="bushes" class="form-label">Number of Bushes</label>
-                <div class="input-group">
-                    <button type="button" class="btn btn-outline-secondary" id="minusBush">-</button>
-                    <input type="number" class="form-control text-center" id="bushCount" value="0" min="0" max="10" readonly aria-label="Number of bushes selected">
-                    <button type="button" class="btn btn-outline-secondary" id="plusBush">+</button>
+            <!-- WHERE THE TREE MODELS WILL GO -->
+            <div class="container-fluid">
+                <div class="row text-center">
+                    <!-- Pine Tree -->
+                    <div class="col-12 col-sm-4 mb-3">
+                        <button type="button" class="image-button" id="pine-tree-btn" onclick="selectModel('pine-tree-btn', 'Pine_tree1.usdz')">
+                            <img src="PineTreePic1.png" alt="Pine Tree" class="img-fluid rounded-image">
+                        </button>
+                    </div>
+                    <!-- Regular Tree -->
+                    <div class="col-12 col-sm-4 mb-3">
+                        <button type="button" class="image-button" id="regular-tree-btn" onclick="selectModel('regular-tree-btn', 'Maple_tree2.usdz')">
+                            <img src="CityTree2.png" alt="Regular Tree" class="img-fluid rounded-image">
+                        </button>
+                    </div>
+                    <!-- Park Tree -->
+                    <div class="col-12 col-sm-4 mb-3">
+                        <button type="button" class="image-button" id="park-tree-btn" onclick="selectModel('park-tree-btn', 'Stylized_Tree3.usdz')">
+                            <img src="ParkTree3.png" alt="Park Tree" class="img-fluid rounded-image">
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -65,81 +66,79 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    var baseURL="http://127.0.0.1:5000"
+    var baseURL = "http://127.0.0.1:5000";
     var PID;
 
-    let treeCount = document.getElementById("treeCount");
-    let bushCount = document.getElementById("bushCount");
-
-    setupCounter(treeCount, "plusTree", "minusTree");
-    setupCounter(bushCount, "plusBush", "minusBush");
-
-    // Submit Form and Redirect to Camera Page (Page 3)
+    // Handle the form submission
     document.getElementById("model-select-form").addEventListener("submit", function (event) {
         event.preventDefault();
-        //Bring to virtualize
-        submitInformation()
+        submitInformation();
     });
-    
-    function setupCounter(element, plusId, minusId) {
-    document.getElementById(plusId).addEventListener("click", function () {
-        if (parseInt(element.value) < 10) {
-            element.value = parseInt(element.value) + 1;
-        }
-    });
-
-    document.getElementById(minusId).addEventListener("click", function () {
-        if (parseInt(element.value) > 0) {
-            element.value = parseInt(element.value) - 1;
-        }
-    });
-}
 
     function detectOS() {
         const userAgent = navigator.userAgent.toLowerCase();
         return /iphone|ipad|ipod/.test(userAgent) ? "IOS" : "Android";
-      }
-    
-      
-    
-    function submitInformation(){
-        
+    }
+
+    function submitInformation() {
         let payload = {
             "name": document.getElementById("postName").value,
             "description": document.getElementById("description").value,
             "os_string": detectOS(),
             "objectList": [
-              { "name": "Tree", "count":  document.getElementById("treeCount").value},
-              { "name": "Bush", "count":  document.getElementById("bushCount").value},
+                { "name": "Tree", "count": document.getElementById("treeCount") ? document.getElementById("treeCount").value : 0 },
+                { "name": "Bush", "count": document.getElementById("bushCount") ? document.getElementById("bushCount").value : 0 },
             ],
-          };
-        console.log(`${baseURL}/api/initProject`)
-          // Send the data to the backend
-        fetch(`${baseURL}/api/initProject`, { 
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+        };
+        console.log(`${baseURL}/api/initProject`);
+
+        // Send the data to the backend
+        fetch(`${baseURL}/api/initProject`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
         })
         .then(response => {
-            if(!response.ok){
-                throw new Error("Init program post was not ok")
+            if (!response.ok) {
+                throw new Error("Init program post was not ok");
             }
-            // console.log(response.json())
-            PID=response.json()
-            return PID
-   
-            
+            return response.json();
         })
         .then(data => {
-        PID = data.PID;  // Assign PID
-      
+            PID = data.PID;
 
-        // Redirect to the virtualize page with the PID
-        window.location.href = `${baseURL}/visualize/${PID}`;
-    })
-    
-    
+            // Redirect to the virtualize page with the PID
+            window.location.href = `${baseURL}/visualize/${PID}`;
+        });
     }
+
+    // Global variable to store the selected 3D model file
+    let selectedModel = null;
+
+    function selectModel(buttonId, modelFile) {
+        // Remove active class from all buttons
+        document.querySelectorAll('.image-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Add active class to the clicked button
+        const selectedButton = document.getElementById(buttonId);
+        selectedButton.classList.add('active');
+
+        // Set the selected model file as the global variable
+        selectedModel = modelFile;
+
+        console.log('Selected model:', selectedModel);
+    }
+
+    function submitSelection() {
+        if (selectedModel) {
+            console.log('Submitted model:', selectedModel);
+        } else {
+            alert('Please select a tree model before submitting.');
+        }
+    }
+
     </script>
 </body>
 </html>
