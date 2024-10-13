@@ -12,10 +12,20 @@
     --green-gradient: linear-gradient(45deg, #67d43b, #389b4c);
 }
 
+.logo {
+    width: 10%; /* Use width instead of size for proper scaling */
+    max-width: 100px; /* Set a maximum width to avoid the logo becoming too large */
+    height: auto; /* Maintain aspect ratio */
+    text-align: left;
+    display: block; /* Ensures proper positioning in its container */
+    margin-left: 0; /* Aligns the logo to the left */
+}
+
+
 /* General Body Styling */
 body {
     background-color: var(--light-color);
-    font-family: 'Garamond', serif;
+    font-family:Garamond, Helvetica, sans-serif;
     color: var(--dark-color);
 }
 
@@ -100,6 +110,7 @@ input[type="text"]:hover, textarea:hover, input[type="number"]:hover, input[type
 .btn-secondary {
     background-color: var(--secondary-color);
     border-color: var(--secondary-color);
+    color:var(--dark-color);
 }
 
 .btn-success {
@@ -118,13 +129,13 @@ input[type="text"]:hover, textarea:hover, input[type="number"]:hover, input[type
 }
 
 /* Back Button */
-.btn-outline-secondary {
+.back-button {
     color: var(--secondary-color);
     border: 1px solid var(--secondary-color);
     background-color: transparent;
 }
 
-.btn-outline-secondary:hover {
+.back-button:hover {
     background-color: var(--secondary-color);
     color: #fff;
 }
@@ -215,3 +226,13 @@ footer {
     text-align: center;
     font-size: 1rem;
 }
+
+
+
+
+
+
+
+
+
+
