@@ -1,0 +1,217 @@
+:root {
+    --light-color: #d9dad9;
+    --dark-color: #1b1325;
+    --primary-color: #67d43b;
+    --secondary-color: #389b4c;
+    --info-color: #3a7888;
+    --success-color: #23bc1d;
+    --warning-color: #fec920;
+    --danger-color: #fb0d50;
+
+    /* Green gradient */
+    --green-gradient: linear-gradient(45deg, #67d43b, #389b4c);
+}
+
+/* General Body Styling */
+body {
+    background-color: var(--light-color);
+    font-family: 'Garamond', serif;
+    color: var(--dark-color);
+}
+
+/* Add hover effect with box shadow */
+.card, .btn, input[type="text"], textarea, input[type="number"], input[type="file"] {
+    transition: box-shadow 0.5s ease;
+}
+
+/* Hover effect for all cards */
+.card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover effect for buttons */
+.btn:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Hover effect for form inputs */
+input[type="text"]:hover, textarea:hover, input[type="number"]:hover, input[type="file"]:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Styling */
+.card {
+    background-color: var(--light-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+/* Add space for icons manually */
+.card::before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 40px;
+    height: 40px;
+    /* Add icon styles manually later */
+}
+
+/* Hover effect with transformation */
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Card Title */
+.card-title {
+    color: var(--dark-color);
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+/* Subtle gray text for description */
+.text-muted {
+    color: var(--info-color);
+}
+
+/* Buttons */
+.btn {
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 10px 15px;
+}
+
+/* Gradient Button Styling */
+.btn-primary {
+    background: var(--green-gradient);
+    border: none;
+    color: white;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #389b4c, #67d43b); /* Reverse gradient on hover */
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+/* Back Button */
+.btn-outline-secondary {
+    color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--secondary-color);
+    color: #fff;
+}
+
+/* Image Styling */
+#uploadedImage {
+    width: 100%;
+    object-fit: cover;
+    max-height: 400px;
+}
+
+/* Container Styling */
+.container-fluid {
+    background-color: var(--light-color);
+    border-bottom: 2px solid var(--dark-color);
+}
+
+.container {
+    background-color: var(--light-color);
+}
+
+/* Form Input Styling */
+input[type="text"],
+textarea,
+input[type="number"],
+input[type="file"] {
+    background-color: var(--light-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: 4px;
+    color: var(--dark-color);
+}
+
+input[type="text"]:focus,
+textarea:focus,
+input[type="number"]:focus,
+input[type="file"]:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(24, 116, 34, 0.773);
+}
+
+/* Navigation Links */
+.nav-links a {
+    color: var(--dark-color);
+}
+
+.nav-links a:hover {
+    color: var(--primary-color);
+}
+
+/* Header Styling */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--dark-color);
+}
+
+/* Placeholder text for dynamic values */
+.placeholder {
+    color: var(--info-color);
+    font-style: italic;
+}
+
+/* Footer */
+footer {
+    background-color: var(--dark-color);
+    color: var(--light-color);
+    padding: 10px 0;
+    text-align: center;
+}
+
+/* Card interactions (tree, flower, bush counts) */
+.interaction-section {
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    color: var(--dark-color);
+}
+
+/* Gradient Input Focus */
+input[type="text"]:focus, textarea:focus, input[type="number"]:focus, input[type="file"]:focus {
+    border-color: var(--primary-color);
+    background: var(--green-gradient);
+    color: white;
+}
+
+/* Footer Gradient */
+footer {
+    background: var(--green-gradient);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 1rem;
+}
