@@ -9,6 +9,7 @@ from firebase_admin import credentials, storage, firestore
 #built-ins
 import os, math
 from heapq import heapify, heappush, heappop 
+from pprint import pprint
 
 
 #file imports
@@ -19,7 +20,7 @@ from storage import uploadFile, getFile
 app = Flask(__name__)
 CORS(app)
 
-cred = credentials.Certificate("Backend/gofundtree-firebase-adminsdk-w1ib7-e1110dff25.json") #TODO get rid before deploy
+cred = credentials.Certificate("gofundtree-firebase-adminsdk-w1ib7-e1110dff25.json") #TODO get rid before deploy
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'gs://gofundtree.appspot.com' # might need to change to "gofundtree.appspot.com"
 })
@@ -104,8 +105,8 @@ def uploadFileToFirebase(PID):
 def retrieveFile(PID, _type):
     return jsonify(getFile(bucket=bucket, db=db, PID=PID, _type=_type))
 
-@app.route("/api/initProject/<PID>", methods=["POST"])
-def initProject(PID):
+@app.route("/api/initProject", methods=["POST"])
+def initProject():
     json = request.json
 
     #init to Firebase Firestore
@@ -117,14 +118,17 @@ def initProject(PID):
         "greens": objectList,
         "location" : "0.00000 0.00000", #instatiate for future editing @PG3
     }
+
+    pprint(finJSON)
+
     PID = db.collection("Project").add(finJSON)
 
     #Ricardo push 3D Model to Firebase Storage
     #TODO add implementation
 
     return jsonify({
-        "PID" : PID,
-    })
+        "PID" : PID[1].id,
+    }), 200
 
 #should be a post, but it realistically easier to parse this way
 @app.route("/api/finalizeProject/<PID>/<lat>/<long>") 
