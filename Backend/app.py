@@ -1,6 +1,7 @@
 #packages
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS, cross_origin
 
 import firebase_admin
 from firebase_admin import credentials, storage, firestore
@@ -16,6 +17,7 @@ from storage import uploadFile, getFile
 #flask app
 
 app = Flask(__name__)
+CORS(app)
 
 cred = credentials.Certificate("Backend/gofundtree-firebase-adminsdk-w1ib7-e1110dff25.json") #TODO get rid before deploy
 firebase_admin.initialize_app(cred, {
